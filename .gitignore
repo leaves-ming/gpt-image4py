@@ -70,6 +70,5 @@ frontend/dist/
 frontend/.vite/
 *.local
 
-# Docker
-docker-compose.override.yml
-.dockerignore
+# Project specific
+PYTHON_VUE3_VERSION_GUIDE.md
