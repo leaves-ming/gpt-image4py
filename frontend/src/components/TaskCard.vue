@@ -1,5 +1,18 @@
 <template>
-  <div class="bg-white rounded-2xl border border-surface-200 shadow-soft overflow-hidden hover:shadow-lg transition-shadow">
+  <div class="bg-white rounded-2xl border border-surface-200 shadow-soft overflow-hidden hover:shadow-lg transition-shadow relative"
+    :class="{ 'ring-2 ring-primary-500': appStore.batchSelectMode && appStore.selectedTaskIds.has(task.id) }">
+    <!-- 批量选择勾选框 -->
+    <div v-if="appStore.batchSelectMode" class="absolute top-2 left-2 z-10">
+      <div class="w-6 h-6 bg-white rounded-full border-2 flex items-center justify-center cursor-pointer"
+        :class="{ 'border-primary-500 bg-primary-500': appStore.selectedTaskIds.has(task.id), 'border-surface-300': !appStore.selectedTaskIds.has(task.id) }"
+        @click.stop="appStore.toggleTaskSelected(task.id)"
+      >
+        <svg v-if="appStore.selectedTaskIds.has(task.id)" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+    </div>
+
     <!-- Header -->
     <div class="px-4 py-3 bg-surface-50 border-b border-surface-200 flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -64,7 +77,7 @@
         v-for="imgId in task.outputImages"
         :key="imgId"
         class="aspect-square relative group cursor-pointer overflow-hidden rounded-lg bg-surface-100"
-        @click="openLightbox(imgId)"
+        @click="appStore.batchSelectMode ? appStore.toggleTaskSelected(task.id) : openLightbox(imgId)"
       >
         <img
           :src="getImageUrl(imgId)"

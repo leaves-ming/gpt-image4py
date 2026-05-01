@@ -110,6 +110,27 @@ export const useAppStore = defineStore('app', () => {
   const showSettings = ref(false)
   const setShowSettings = (v: boolean) => { showSettings.value = v }
 
+  // 批量选择模式
+  const batchSelectMode = ref(false)
+  const selectedTaskIds = ref<Set<string>>(new Set())
+  const setBatchSelectMode = (v: boolean) => {
+    batchSelectMode.value = v
+    if (!v) selectedTaskIds.value.clear()
+  }
+  const toggleTaskSelected = (taskId: string) => {
+    if (selectedTaskIds.value.has(taskId)) {
+      selectedTaskIds.value.delete(taskId)
+    } else {
+      selectedTaskIds.value.add(taskId)
+    }
+  }
+  const selectAllTasks = () => {
+    filteredTasks.value.forEach(t => selectedTaskIds.value.add(t.id))
+  }
+  const clearSelectedTasks = () => {
+    selectedTaskIds.value.clear()
+  }
+
   // Toast
   const toast = ref<{ message: string; type: 'info' | 'success' | 'error' } | null>(null)
   const showToast = (message: string, type: 'info' | 'success' | 'error' = 'info') => {
@@ -529,6 +550,8 @@ export const useAppStore = defineStore('app', () => {
     toast,
     confirmDialog,
     filteredTasks,
+    batchSelectMode,
+    selectedTaskIds,
 
     // Actions
     setSettings,
@@ -546,6 +569,10 @@ export const useAppStore = defineStore('app', () => {
     setShowSettings,
     showToast,
     setConfirmDialog,
+    setBatchSelectMode,
+    toggleTaskSelected,
+    selectAllTasks,
+    clearSelectedTasks,
     initStore,
     submitTask,
     reuseConfig,

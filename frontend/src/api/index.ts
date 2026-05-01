@@ -76,3 +76,19 @@ export async function callImageApi(options: {
     return generateImage(prompt, params, settings)
   }
 }
+
+// 批量打包下载
+export async function batchDownload(imageUrls: string[]) {
+  const res = await api.post('/images/batch-download', { image_urls: imageUrls }, {
+    responseType: 'blob'
+  })
+  // 下载文件
+  const blob = new Blob([res.data], { type: 'application/zip' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `ai_images_${Date.now()}.zip`
+  a.click()
+  URL.revokeObjectURL(url)
+  return true
+}
