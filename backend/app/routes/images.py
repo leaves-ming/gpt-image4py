@@ -20,7 +20,7 @@ async def generate_image(request: ImageGenerationRequest):
             params=request.params,
             api_base_url=request.api_base_url,
             api_path=request.api_path,
-            api_key=request.api_key,
+            api_keys=request.api_keys,
             model=request.model
         )
         return {"code": 0, "message": "success", "data": {"images": images}}
@@ -33,18 +33,19 @@ async def edit_image(
     params: str = Form(...),
     api_base_url: Optional[str] = Form(None),
     api_path: str = Form(...),
-    api_key: Optional[str] = Form(None),
+    api_keys: Optional[str] = Form(None),
     model: str = Form("gpt-image-2"),
     images: List[UploadFile] = File(...)
 ):
     try:
         task_params = TaskParams(**json.loads(params))
+        api_keys_list = json.loads(api_keys) if api_keys else []
         images_result = ai_client.edit_image(
             prompt=prompt,
             params=task_params,
             api_base_url=api_base_url,
             api_path=api_path,
-            api_key=api_key,
+            api_keys=api_keys_list,
             image_files=images,
             model=model
         )

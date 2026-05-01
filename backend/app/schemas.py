@@ -15,6 +15,6 @@ class ImageGenerationRequest(BaseModel):
     params: TaskParams
     api_base_url: Optional[str] = None
     api_path: str
-    api_key: Optional[str] = None
+    api_keys: Optional[List[str]] = None
     model: str = "gpt-image-2"
     input_images: Optional[List[str]] = None

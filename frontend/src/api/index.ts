@@ -17,7 +17,7 @@ export async function generateImage(
     params,
     api_base_url: settings.baseUrl,
     api_path: settings.generationPath,
-    api_key: settings.apiKey,
+    api_keys: settings.apiKey.split('\n').map(k => k.trim()).filter(k => k),
     model: settings.model
   })
   return res.data.data
@@ -35,7 +35,7 @@ export async function editImage(
   formData.append('params', JSON.stringify(params))
   formData.append('api_base_url', settings.baseUrl)
   formData.append('api_path', settings.editPath)
-  formData.append('api_key', settings.apiKey)
+  formData.append('api_keys', JSON.stringify(settings.apiKey.split('\n').map(k => k.trim()).filter(k => k)))
   formData.append('model', settings.model)
   files.forEach((file, index) => {
     formData.append(`images`, file, `input_${index}.png`)
