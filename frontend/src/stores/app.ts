@@ -202,6 +202,7 @@ export const useAppStore = defineStore('app', () => {
     const normalizedParams = {
       ...params.value,
       size: normalizeImageSize(params.value.size) || DEFAULT_PARAMS.size,
+      enable_compress: settings.value.enableCompress,
     }
     if (normalizedParams.size !== params.value.size) {
       setParams({ size: normalizedParams.size })
@@ -214,6 +215,7 @@ export const useAppStore = defineStore('app', () => {
       params: normalizedParams,
       inputImageIds: inputImages.value.map(i => i.id),
       outputImages: [],
+      compressedOutputImages: [],
       status: 'running',
       error: null,
       createdAt: Date.now(),
@@ -249,16 +251,24 @@ export const useAppStore = defineStore('app', () => {
       })
 
       // 存储输出图片
-      const outputIds: string[] = []
-      for (const dataUrl of result.images) {
-        const imgId = await storeImage(dataUrl, 'generated')
-        imageCache.set(imgId, dataUrl)
-        outputIds.push(imgId)
+      const originalOutputIds: string[] = []
+      const compressedOutputIds: string[] = []
+      for (const item of result) {
+        // 存储原图
+        const originalId = await storeImage(item.original, 'generated')
+        imageCache.set(originalId, item.original)
+        originalOutputIds.push(originalId)
+        
+        // 存储压缩图
+        const compressedId = await storeImage(item.compressed, 'generated')
+        imageCache.set(compressedId, item.compressed)
+        compressedOutputIds.push(compressedId)
       }
 
       // 更新任务
       updateTaskInStore(taskId, {
-        outputImages: outputIds,
+        outputImages: originalOutputIds,
+        compressedOutputImages: compressedOutputIds,
         status: 'done',
         finishedAt: Date.now(),
         elapsed: Date.now() - task.createdAt,

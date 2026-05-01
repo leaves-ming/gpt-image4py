@@ -8,6 +8,7 @@ class TaskParams(BaseModel):
     output_compression: Optional[int] = None
     moderation: Literal['auto', 'low']
     n: int = 1
+    enable_compress: bool = False
 
 class ImageGenerationRequest(BaseModel):
     prompt: str

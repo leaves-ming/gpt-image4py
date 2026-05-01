@@ -100,6 +100,24 @@
             class="w-full px-4 py-2.5 bg-white border border-surface-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
           />
         </div>
+
+        <!-- Auto Compress -->
+        <div class="flex items-center justify-between">
+          <div>
+            <label class="block text-sm font-medium text-content-primary">生成后自动压缩图片</label>
+            <p class="text-xs text-content-muted mt-1">兼顾画质和下载速度，默认关闭</p>
+          </div>
+          <button
+            @click="form.enableCompress = !form.enableCompress"
+            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+            :class="form.enableCompress ? 'bg-primary-600' : 'bg-surface-300'"
+          >
+            <span
+              class="inline-block h-4 w-4 rounded-full bg-white transition-transform"
+              :class="form.enableCompress ? 'translate-x-6' : 'translate-x-1'"
+            />
+          </button>
+        </div>
       </div>
 
       <!-- Footer -->

@@ -1,9 +1,10 @@
 import requests
-from typing import List, Optional
+from typing import List, Optional, Dict
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from requests.exceptions import RequestException, Timeout, ConnectionError, HTTPError
 from app.schemas import TaskParams
 from app.config import settings
+from app.services.image_processor import compress_image, b64_to_bytes, bytes_to_b64
 
 class AIClient:
     def __init__(self, timeout: int = settings.request_timeout):
@@ -56,7 +57,19 @@ class AIClient:
         response = requests.post(url, headers=headers, json=body, timeout=self.timeout)
         response.raise_for_status()
         result = response.json()
-        return [item.get("b64_json") or item.get("url") for item in result["data"]]
+        output = []
+        for item in result["data"]:
+            original = item.get("b64_json") or item.get("url")
+            compressed = original
+            if params.enable_compress and original.startswith("data:"):
+                img_bytes = b64_to_bytes(original)
+                compressed_bytes, ext = compress_image(img_bytes)
+                compressed = bytes_to_b64(compressed_bytes, ext)
+            output.append({
+                "original": original,
+                "compressed": compressed
+            })
+        return output
 
     @retry(
         stop=stop_after_attempt(3),
@@ -105,6 +118,18 @@ class AIClient:
         response = requests.post(url, headers=headers, data=form_data, files=files, timeout=self.timeout)
         response.raise_for_status()
         result = response.json()
-        return [item.get("b64_json") or item.get("url") for item in result["data"]]
+        output = []
+        for item in result["data"]:
+            original = item.get("b64_json") or item.get("url")
+            compressed = original
+            if params.enable_compress and original.startswith("data:"):
+                img_bytes = b64_to_bytes(original)
+                compressed_bytes, ext = compress_image(img_bytes)
+                compressed = bytes_to_b64(compressed_bytes, ext)
+            output.append({
+                "original": original,
+                "compressed": compressed
+            })
+        return output
 
 ai_client = AIClient()

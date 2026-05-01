@@ -7,6 +7,7 @@ export interface AppSettings {
   generationPath: string
   editPath: string
   timeout: number
+  enableCompress: boolean
 }
 
 const DEFAULT_BASE_URL = import.meta.env.VITE_DEFAULT_API_URL?.trim() || 'https://api.openai.com'
@@ -18,6 +19,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   generationPath: 'v1/images/generations',
   editPath: 'v1/images/edits',
   timeout: 300,
+  enableCompress: false,
 }
 
 // ===== 任务参数 =====
@@ -29,6 +31,7 @@ export interface TaskParams {
   output_compression: number | null
   moderation: 'auto' | 'low'
   n: number
+  enable_compress: boolean
 }
 
 export const DEFAULT_PARAMS: TaskParams = {
@@ -38,6 +41,7 @@ export const DEFAULT_PARAMS: TaskParams = {
   output_compression: null,
   moderation: 'auto',
   n: 1,
+  enable_compress: false,
 }
 
 // ===== 输入图片（UI 层面） =====
@@ -59,8 +63,10 @@ export interface TaskRecord {
   params: TaskParams
   /** 输入图片的 image store id 列表 */
   inputImageIds: string[]
-  /** 输出图片的 image store id 列表 */
+  /** 输出原图的 image store id 列表 */
   outputImages: string[]
+  /** 压缩后输出图片的 image store id 列表 */
+  compressedOutputImages: string[]
   status: TaskStatus
   error: string | null
   createdAt: number
