@@ -1,5 +1,7 @@
 import requests
 from typing import List, Optional
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from requests.exceptions import RequestException, Timeout, ConnectionError, HTTPError
 from app.schemas import TaskParams
 from app.config import settings
 
@@ -7,6 +9,16 @@ class AIClient:
     def __init__(self, timeout: int = settings.request_timeout):
         self.timeout = timeout
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=1, max=5),
+        retry=retry_if_exception_type((Timeout, ConnectionError, HTTPError)),
+        retry_condition=lambda retry_state: (
+            isinstance(retry_state.outcome.exception(), HTTPError) 
+            and (500 <= retry_state.outcome.exception().response.status_code < 600 
+                 or retry_state.outcome.exception().response.status_code == 429)
+        ) if hasattr(retry_state.outcome, 'exception') else True
+    )
     def generate_image(
         self, 
         prompt: str, 
@@ -46,6 +58,16 @@ class AIClient:
         result = response.json()
         return [item.get("b64_json") or item.get("url") for item in result["data"]]
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=1, max=5),
+        retry=retry_if_exception_type((Timeout, ConnectionError, HTTPError)),
+        retry_condition=lambda retry_state: (
+            isinstance(retry_state.outcome.exception(), HTTPError) 
+            and (500 <= retry_state.outcome.exception().response.status_code < 600 
+                 or retry_state.outcome.exception().response.status_code == 429)
+        ) if hasattr(retry_state.outcome, 'exception') else True
+    )
     def edit_image(
         self, 
         prompt: str, 
